@@ -2,6 +2,8 @@ package pl.coderslab;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,43 +17,48 @@ public class TaskManager {
     static String[][] zadania = new String[1][3];
 
     public static void main(String[] args) {
-
-        // wczytanie danych z pliku.
         if(wczytanieDanychZPliku()) {
-            //Tu będzie cały program o ile plik istnieje lub nie jest pusty
             Scanner skaner = new Scanner(System.in);
-                etykietaDlaPetli:
-                while(true) {
-                    wyswietlenieMenu();
-                    String wybor = skaner.nextLine();
-                    switch (wybor) {
-                        case "add":
-                            dodawanieZadania();
-                            break;
-                        case "remove":
-                            if(zadania.length >0) usuwanieZadania();
-                            else System.out.println(ConsoleColors.RED + "Nie ma żadnych zadań!");
-                            break;
-                        case "list":
-                            pokazanieZadan();
-                            break;
-                        case "exit":
-                            zapisZadan();
-                            System.out.println(ConsoleColors.RED + "Bye, bye.");
-                            break etykietaDlaPetli;
-                        default:
-                            System.out.println(ConsoleColors.RED + "Nieprawidłowe polecenie. Spróbuj ponownie");
-                    }
+            etykietaDlaPetli:
+            while(true) {
+                wyswietlenieMenu();
+                String wybor = skaner.nextLine();
+                switch (wybor) {
+                    case "add":
+                        dodawanieZadania();
+                        break;
+                    case "remove":
+                        if(zadania.length >0) usuwanieZadania();
+                        else System.out.println(ConsoleColors.RED + "There are no tasks!");
+                        break;
+                    case "list":
+                        pokazanieZadan();
+                        break;
+                    case "exit":
+                        zapisZadan();
+                        System.out.println(ConsoleColors.RED + "Bye, bye.");
+                        break etykietaDlaPetli;
+                    default:
+                        System.out.println(ConsoleColors.RED + "Invalid command, please try again.");
+                }
             }
         }
     }
 
     public static void zapisZadan() {
-
+        try (FileWriter plik = new FileWriter(plikglobal)){ // ,true aby dopisywać
+            for(int i=0; i<zadania.length; i++) {
+                plik.append(zadania[i][0] + ", ");
+                plik.append(zadania[i][1] + ", ");
+                plik.append(zadania[i][2] + "\n");
+            }
+        } catch (IOException ex) {
+            System.out.println(ConsoleColors.RED + "Error writing to file!");
+        }
     }
 
     public static void pokazanieZadan() {
-        if(zadania.length == 0) System.out.println(ConsoleColors.RED + "Brak zadań!");
+        if(zadania.length == 0) System.out.println(ConsoleColors.RED + "No tasks!");
         else {
             for(int i=0; i<zadania.length; i++) {
                 System.out.print(ConsoleColors.RESET + i + " : ");
@@ -70,13 +77,6 @@ public class TaskManager {
             if(NumberUtils.isParsable(wybor)) {
                 int numer = NumberUtils.toInt(wybor);
                 if (numer>=0 && numer<zadania.length) {
-
-
-            /*     //   Sprawdzanie jak wygląda tablica przed usunięciem wiersza
-                    System.out.println("Tablica przed dodaniem, length = " + zadania.length);
-                    for (int i=0; i<zadania.length; i++)
-                        System.out.println(Arrays.toString(zadania[i]));
-            */
                     zadania = ArrayUtils.remove(zadania, numer);
                     System.out.println(ConsoleColors.RED + "Value was successfully deleted.");
 
@@ -85,9 +85,8 @@ public class TaskManager {
                     for (int i=0; i<zadania.length; i++)
                         System.out.println(Arrays.toString(zadania[i]));
                     */
+
                     break;
-
-
                 } else System.out.println(ConsoleColors.RED + "Podaj prawidłową wartość (0 - " + (zadania.length-1) + ")");
             } else System.out.println(ConsoleColors.RED + "Podaj liczbę");
         }
@@ -95,16 +94,15 @@ public class TaskManager {
 
     public static boolean wczytanieDanychZPliku() { // wczytanie danych z pliku i wrzucenie ich do tabeli
         File plik = new File(plikglobal);
-        try (Scanner skaner = new Scanner(plik);) {
+        try (Scanner skanerplik = new Scanner(plik);) {
             int licznik = 0; // liczy ilość zadań w pliku
-            Scanner skanerplik = new Scanner(plik);
             StringBuilder calyplik = new StringBuilder(); // tu wczytam cały plik
             while (skanerplik.hasNextLine()) {
                 calyplik.append(skanerplik.nextLine()).append("&&&"); // dodaję kolejne linie z pliku i dodaję separator &&&
                 licznik++;
             }
             if(licznik == 0) {
-                System.out.println("Plik jest pusty");
+                System.out.println(ConsoleColors.RED + "The file is empty");
                 return false;
             }
             // System.out.println(calyplik); // testowo wyświetlam cały plik
@@ -115,7 +113,7 @@ public class TaskManager {
                 zadania[i] = linia[i].split(", "); // wpisuję konkretne dane do tabeli
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Brak pliku.");
+            System.out.println(ConsoleColors.RED + "No file!");
             return false;
         }
         return true;
@@ -189,10 +187,4 @@ public class TaskManager {
             return false; // Jeśli wystąpi ParseException, data jest nieprawidłowa
         }
     }
-
-
-
-
-
-
 }
