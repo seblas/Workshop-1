@@ -71,22 +71,40 @@ public class TaskManager {
     public static void usuwanieZadania() {
         Scanner skaner = new Scanner(System.in);
         String wybor;
+        pokazanieZadan();
         while(true) {
             System.out.println(ConsoleColors.BLUE + "Please select number to remove." + ConsoleColors.GREEN);
             wybor = skaner.nextLine();
             if(NumberUtils.isParsable(wybor)) {
                 int numer = NumberUtils.toInt(wybor);
                 if (numer>=0 && numer<zadania.length) {
-                    zadania = ArrayUtils.remove(zadania, numer);
-                    System.out.println(ConsoleColors.RED + "Value was successfully deleted.");
+                    while(true) {
+                        System.out.println(ConsoleColors.BLUE + "This task will be delated:");
+                        System.out.print(ConsoleColors.RESET + numer + " : ");
+                        System.out.print(zadania[numer][0] + "  " + zadania[numer][1] + " ");
+                        System.out.println(ConsoleColors.RED + zadania[numer][2]);
+                        System.out.println(ConsoleColors.BLUE + "Are you sure (y/n)");
+                        char znak = skaner.next().charAt(0);
+                        if(znak=='y' || znak=='Y') {
+                            zadania = ArrayUtils.remove(zadania, numer);
+                            System.out.println(ConsoleColors.RED + "Value was successfully deleted.");
 
-                 /*   //   Sprawdzanie jak wygląda tablica po usunięciu wiersza
-                    System.out.println("Tablica po usunięciu, length = " + zadania.length);
-                    for (int i=0; i<zadania.length; i++)
-                        System.out.println(Arrays.toString(zadania[i]));
-                    */
+                            /*   //   Sprawdzanie jak wygląda tablica po usunięciu wiersza
+                            System.out.println("Tablica po usunięciu, length = " + zadania.length);
+                            for (int i=0; i<zadania.length; i++)
+                            System.out.println(Arrays.toString(zadania[i]));
+                            */
 
-                    break;
+                            break;
+                        }
+                        else {
+                            System.out.println(ConsoleColors.RED + "The task has not been deleted.");
+                            break;
+                        }
+
+
+                    }
+                break;
                 } else System.out.println(ConsoleColors.RED + "Podaj prawidłową wartość (0 - " + (zadania.length-1) + ")");
             } else System.out.println(ConsoleColors.RED + "Podaj liczbę");
         }
